@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from chromedriver_py import binary_path
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
@@ -12,6 +13,7 @@ config = dotenv_values(".env")
 
 options = webdriver.ChromeOptions()
 # options.add_argument('--headless')
+options.add_experimental_option("detach", True)
 options.add_argument('--no-sandbox')
 browser = webdriver.Chrome(options=options)
 
@@ -36,11 +38,9 @@ def main():
     browser.get(GRADING_PAGE_URL)
 
     sid_search_bar = (
-        By.XPATH, '/html/body/div[2]/div/div[3]/div/div/div[1]/form/div/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td[1]/div/d2l-input-search//d2l-input-text//div/div[1]/input')
-    search_button = (
-        By.XPATH, '/html/body/div[2]/div/div[3]/div/div/div[1]/form/div/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr/td[1]/div/d2l-input-search//d2l-input-text/d2l-button-icon//button')
+        By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
     grade_input = (
-        By.XPATH, '/html/body/div[2]/div/div[3]/div/div/div[1]/form/div/div[4]/d2l-table-wrapper/table/tbody/tr[2]/td[3]/div/div/div/div/div/div/d2l-input-number//d2l-input-text//div/div[1]/input')
+        By.XPATH, "//*[starts-with(@title,'Grade for ')]")
     save_all_button = (By.ID, 'z_b')
     confirm_button = (
         By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
@@ -73,8 +73,17 @@ def main():
 
             workbook.close()
 
+            grade_percentage = assignment['actual_grade'] / assignment['max_grade'] * 100
+
             WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                search_button)).send_keys(assignment["sid"])
+                sid_search_bar)).send_keys(assignment["sid"])
+            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                sid_search_bar)).send_keys(Keys.ENTER)
+            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                grade_input)).clear()
+            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                grade_input)).send_keys(grade_percentage)
+
 
     # WebDriverWait(browser,10).until(EC.element_to_be_clickable(login_button)).click().send_keys
 

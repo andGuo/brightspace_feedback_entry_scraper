@@ -2,7 +2,7 @@ import os
 import xlwings
 from openpyxl import load_workbook
 
-PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/test/' 
+PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/final/a1_andrew_guo_sheets/'
 
 files = []
 
@@ -32,4 +32,4 @@ for f in files:
 
         workbook.close()
 
-        print(assignment) 
+        print(assignment['actual_grade'] / assignment['max_grade'] * 100) 
