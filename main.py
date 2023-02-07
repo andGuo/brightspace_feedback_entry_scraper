@@ -1,7 +1,8 @@
 import os
+import xlwings
+from openpyxl import load_workbook
 from dotenv import dotenv_values
 config = dotenv_values(".env")
-from openpyxl import load_workbook
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from chromedriver_py import binary_path
@@ -16,24 +17,45 @@ options.add_argument('--no-sandbox')
 browser = webdriver.Chrome(options=options)
 
 def main():
-    base_url = "https://brightspace.carleton.ca/d2l/home"
-    grading_page_url = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
+    BASE_URL = "https://brightspace.carleton.ca/d2l/home"
+    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/final/a1_andrew_guo_sheets/'
 
-    browser.add_cookie({"name": "IDMSESSID", "value": config["IDMSESSID"]})
-    browser.add_cookie({"name": "TS012103f9", "value": config["TS012103f9"]})
-    browser.add_cookie({"name": "TS0186ecd1", "value": config["TS0186ecd1"]})
-    browser.add_cookie({"name": "d2lSecureSessionVal", "value": config["d2lSecureSessionVal"]})
-    browser.add_cookie({"name": "d2lSessionVal", "value": config["d2lSessionVal"]})
+    files = []
 
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
-    browser.get(base_url)
+    browser.get(BASE_URL)
     WebDriverWait(browser,10).until(EC.element_to_be_clickable(email_field)).send_keys(config["USERNAME"])
     WebDriverWait(browser,10).until(EC.element_to_be_clickable(password_field)).send_keys(config["PASSWORD"])
     WebDriverWait(browser,10).until(EC.element_to_be_clickable(login_button)).click()
-    browser.get(grading_page_url)
+    browser.get(GRADING_PAGE_URL)
 
+    # getting all files in directory
+    for (dirpath, dirnames, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
+        files.extend(filenames)
+
+    # opening every .xlsx file and updating feedback
+    for f in files:
+        if f.endswith('.xlsx'):
+            fpath = PATH_TO_FEEDBACK_SHEETS + f
+            
+            # hack to cache excel so that formulas are evaulated
+            excel_app = xlwings.App(visible=False)
+            excel_book = excel_app.books.open(fpath)
+            excel_book.save()
+            excel_book.close()
+            excel_app.quit()
+
+            workbook = load_workbook(
+                filename=fpath, data_only=True, read_only=True)
+            sheet = workbook.active
+
+            assignment = {"feedback": sheet['B7'].value, "max_grade": sheet['C5'].value,
+                        "actual_grade": sheet['B5'].value, "sname": sheet['B2'].value, "sid": sheet['B3'].value}
+
+            workbook.close()
 
 if __name__ == "__main__":
     main()
