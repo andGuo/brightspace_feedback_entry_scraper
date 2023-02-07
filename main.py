@@ -14,7 +14,7 @@ config = dotenv_values(".env")
 
 options = webdriver.ChromeOptions()
 # options.add_argument('--headless')
-# options.add_experimental_option("detach", True)
+options.add_experimental_option("detach", True)
 options.add_argument('--no-sandbox')
 browser = webdriver.Chrome(options=options)
 
@@ -22,10 +22,11 @@ browser = webdriver.Chrome(options=options)
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/fixed/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/test/'
 
     files = []
 
+    #These will probably break and need to updated before use
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
@@ -33,8 +34,9 @@ def main():
         By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
     grade_input = (
         By.XPATH, "//*[starts-with(@title,'Grade for ')]")
-    open_feedback_dialog = (By.ID, 'ICN_Feedback_551527_108406')
+    open_feedback_dialog = (By.XPATH, "//a[starts-with(@title,'Edit comments for')]")
     feedback_iframe = (By.CLASS_NAME, 'd2l-dialog-frame')
+    fullscreen_button = 'return document.querySelector("#publicComments").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")'
     save_feedback_button = (
         By.XPATH, '//*[@id="d_content"]/div[4]/div/button[1]')
 
@@ -86,6 +88,7 @@ def main():
             print(f"{assignment['sname']} - {grade_percentage}%")
 
             try:
+                #Search for student id
                 search = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(sid_search_bar))
                 search.send_keys(Keys.COMMAND, 'a')
@@ -93,12 +96,14 @@ def main():
                 search.send_keys(assignment['sid'])
                 search.send_keys(Keys.ENTER)
 
+                #Input Grade
                 grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     grade_input))
                 grade.send_keys(Keys.COMMAND, 'a')
                 grade.send_keys(Keys.DELETE)
                 grade.send_keys(grade_percentage)
 
+                #Update Feedback
                 edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     open_feedback_dialog)).click()
 
@@ -106,26 +111,29 @@ def main():
                     EC.frame_to_be_available_and_switch_to_it(feedback_iframe))
 
                 time.sleep(1)
-                fullscreen_button = browser.execute_script('return document.querySelector("#publicComments").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")')
-                fullscreen_button.click()
+                fs_button = browser.execute_script(fullscreen_button)
+                fs_button.click()
 
                 feedback_text = browser.switch_to.active_element
                 feedback_text.send_keys(Keys.COMMAND, 'a')
                 feedback_text.send_keys(Keys.DELETE)
                 feedback_text.send_keys(assignment['feedback'])
 
-                fullscreen_button.click()
+                fs_button.click()
 
                 save_feedback = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     save_feedback_button)).click()
-
+                
+                time.sleep(1)
+                #Save grade
                 save_grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     save_all_button)).click()
 
                 confirm = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                      confirm_button)).click()
-            except:
-                print(f"Failed to input feedback for student: {assignment['sname']}")
+            except Exception as e:
+                print(f"Failed to input feedback for student({assignment['sid']}): {assignment['sname']}")
+                print(e)
                 continue
 
 
