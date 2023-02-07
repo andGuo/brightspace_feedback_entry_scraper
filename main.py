@@ -33,13 +33,14 @@ def main():
     grade_input = (
         By.XPATH, "//*[starts-with(@title,'Grade for ')]")
     open_feedback_dialog = (By.ID, 'ICN_Feedback_551527_108406')
-    feedback_box = (By.CSS_SELECTOR, "[data-id='d2l-uid-2']")
+    feedback_box = (By.ID, 'tinymce')
+    save_feedback_button = (
+        By.XPATH, '//*[@id="d_content"]/div[4]/div/button[1]')
 
     save_all_button = (By.ID, 'z_b')
     confirm_button = (
         By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
-    save_feedback_button = (
-        By.XPATH, '/html/body/div[2]/div/div[3]/div/div/d2l-floating-buttons/button[2]')
+    
     
 
     browser.get(BASE_URL)
@@ -83,6 +84,8 @@ def main():
 
             search = WebDriverWait(browser, 10).until(
                 EC.element_to_be_clickable(sid_search_bar))
+            search.send_keys(Keys.COMMAND, 'a')
+            search.send_keys(Keys.DELETE)
             search.send_keys(assignment['sid'])
             search.send_keys(Keys.ENTER)
 
@@ -95,13 +98,22 @@ def main():
             edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                 open_feedback_dialog)).click()
 
+            feedback = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                feedback_box))
+            browser.switchTo.activeElement.click()
+            browser.switchTo.activeElement.send_keys(Keys.COMMAND, 'a')
+            browser.switchTo.activeElement.send_keys(Keys.DELETE)
+            browser.switchTo.activeElement.send_keys(assignment['feedback'])
+            feedback.click()
 
-            
+            # save_feedback = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+            #     save_feedback_button)).click()
 
+            # save_all = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+            #      save_feedback_button)).click()
 
-
-    # WebDriverWait(browser,10).until(EC.element_to_be_clickable(login_button)).click().send_keys
-
+            # confirm = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+            #      confirm_button)).click() 
 
 if __name__ == "__main__":
     main()
