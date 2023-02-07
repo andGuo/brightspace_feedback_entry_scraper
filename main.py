@@ -19,7 +19,7 @@ browser = webdriver.Chrome(options=options)
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/final/a1_andrew_guo_sheets/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/test/'
 
     files = []
 
@@ -39,26 +39,28 @@ def main():
     for (dirpath, dirnames, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
         files.extend(filenames)
 
-    # opening every .xlsx file and updating feedback
-    for f in files:
-        if f.endswith('.xlsx'):
-            fpath = PATH_TO_FEEDBACK_SHEETS + f
+    # # opening every .xlsx file and updating feedback
+    # for f in files:
+    #     if f.endswith('.xlsx'):
+    #         fpath = PATH_TO_FEEDBACK_SHEETS + f
 
-            # hack to cache excel so that formulas are evaulated
-            excel_app = xlwings.App(visible=False)
-            excel_book = excel_app.books.open(fpath)
-            excel_book.save()
-            excel_book.close()
-            excel_app.quit()
+    #         # hack to cache excel so that formulas are evaulated
+    #         excel_app = xlwings.App(visible=False)
+    #         excel_book = excel_app.books.open(fpath)
+    #         excel_book.save()
+    #         excel_book.close()
+    #         excel_app.quit()
 
-            workbook = load_workbook(
-                filename=fpath, data_only=True, read_only=True)
-            sheet = workbook.active
+    #         workbook = load_workbook(
+    #             filename=fpath, data_only=True, read_only=True)
+    #         sheet = workbook.active
 
-            assignment = {"feedback": sheet['B7'].value, "max_grade": sheet['C5'].value,
-                          "actual_grade": sheet['B5'].value, "sname": sheet['B2'].value, "sid": sheet['B3'].value}
+    #         assignment = {"feedback": sheet['B7'].value, "max_grade": sheet['C5'].value,
+    #                       "actual_grade": sheet['B5'].value, "sname": sheet['B2'].value, "sid": sheet['B3'].value}
 
-            workbook.close()
+    #         workbook.close()
+
+    #WebDriverWait(browser,10).until(EC.element_to_be_clickable(login_button)).click().send_keys
 
     sid_search_bar = (By.ID, 'd2l-uid-757')
     search_button = (By.ID, 'd2l-uid-630')
