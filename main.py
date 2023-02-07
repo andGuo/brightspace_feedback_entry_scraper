@@ -60,6 +60,14 @@ def main():
 
             workbook.close()
 
+    sid_search_bar = (By.ID, 'd2l-uid-757')
+    search_button = (By.ID, 'd2l-uid-630')
+    grade_input = (By.ID, 'd2l-uid-65')
+    save_all_button = (By.ID, 'z_b')
+    confirm_button = (By.XPATH, '//*[@id="d2l_body"]/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
+    save_feedback_button = (By.XPATH, '//*[@id="d_content"]/div[4]/div/button[1]')
+    feedback_box = (By.ID, 'd2l-uid-2')
+
 
 if __name__ == "__main__":
     main()
