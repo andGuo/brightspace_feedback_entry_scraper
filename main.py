@@ -28,6 +28,20 @@ def main():
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
+    sid_search_bar = (
+        By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
+    grade_input = (
+        By.XPATH, "//*[starts-with(@title,'Grade for ')]")
+    open_feedback_dialog = (By.ID, 'ICN_Feedback_551527_108406')
+    feedback_box = (By.CSS_SELECTOR, "[data-id='d2l-uid-2']")
+
+    save_all_button = (By.ID, 'z_b')
+    confirm_button = (
+        By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
+    save_feedback_button = (
+        By.XPATH, '/html/body/div[2]/div/div[3]/div/div/d2l-floating-buttons/button[2]')
+    
+
     browser.get(BASE_URL)
     WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
         email_field)).send_keys(config["USERNAME"])
@@ -37,16 +51,7 @@ def main():
         EC.element_to_be_clickable(login_button)).click()
     browser.get(GRADING_PAGE_URL)
 
-    sid_search_bar = (
-        By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
-    grade_input = (
-        By.XPATH, "//*[starts-with(@title,'Grade for ')]")
-    save_all_button = (By.ID, 'z_b')
-    confirm_button = (
-        By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
-    save_feedback_button = (
-        By.XPATH, '/html/body/div[2]/div/div[3]/div/div/d2l-floating-buttons/button[2]')
-    feedback_box = (By.CSS_SELECTOR, "[data-id='d2l-uid-2']")
+    
 
     # getting all files in directory
     for (dirpath, dirnames, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
@@ -73,16 +78,26 @@ def main():
 
             workbook.close()
 
-            grade_percentage = assignment['actual_grade'] / assignment['max_grade'] * 100
+            grade_percentage = assignment['actual_grade'] / \
+                assignment['max_grade'] * 100
 
-            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                sid_search_bar)).send_keys(assignment["sid"])
-            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                sid_search_bar)).send_keys(Keys.ENTER)
-            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                grade_input)).clear()
-            WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                grade_input)).send_keys(grade_percentage)
+            search = WebDriverWait(browser, 10).until(
+                EC.element_to_be_clickable(sid_search_bar))
+            search.send_keys(assignment['sid'])
+            search.send_keys(Keys.ENTER)
+
+            grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                grade_input))
+            grade.send_keys(Keys.COMMAND, 'a')
+            grade.send_keys(Keys.DELETE)
+            grade.send_keys(grade_percentage)
+
+            edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                open_feedback_dialog)).click()
+
+
+            
+
 
 
     # WebDriverWait(browser,10).until(EC.element_to_be_clickable(login_button)).click().send_keys
