@@ -22,7 +22,7 @@ browser = webdriver.Chrome(options=options)
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/test/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/fixed/'
 
     files = []
 
