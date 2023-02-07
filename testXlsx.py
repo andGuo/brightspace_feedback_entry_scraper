@@ -32,4 +32,4 @@ for f in files:
 
         workbook.close()
 
-        
+        print(assignment) 
