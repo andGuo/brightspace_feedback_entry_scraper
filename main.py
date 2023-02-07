@@ -1,20 +1,20 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from chromedriver_py import binary_path
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium import webdriver
 import os
 import xlwings
 from openpyxl import load_workbook
 from dotenv import dotenv_values
 config = dotenv_values(".env")
-from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from chromedriver_py import binary_path
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 options = webdriver.ChromeOptions()
-#options.add_argument('--headless')
+# options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 browser = webdriver.Chrome(options=options)
+
 
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
@@ -27,9 +27,12 @@ def main():
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
     browser.get(BASE_URL)
-    WebDriverWait(browser,10).until(EC.element_to_be_clickable(email_field)).send_keys(config["USERNAME"])
-    WebDriverWait(browser,10).until(EC.element_to_be_clickable(password_field)).send_keys(config["PASSWORD"])
-    WebDriverWait(browser,10).until(EC.element_to_be_clickable(login_button)).click()
+    WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+        email_field)).send_keys(config["USERNAME"])
+    WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+        password_field)).send_keys(config["PASSWORD"])
+    WebDriverWait(browser, 10).until(
+        EC.element_to_be_clickable(login_button)).click()
     browser.get(GRADING_PAGE_URL)
 
     # getting all files in directory
@@ -40,7 +43,7 @@ def main():
     for f in files:
         if f.endswith('.xlsx'):
             fpath = PATH_TO_FEEDBACK_SHEETS + f
-            
+
             # hack to cache excel so that formulas are evaulated
             excel_app = xlwings.App(visible=False)
             excel_book = excel_app.books.open(fpath)
@@ -53,9 +56,10 @@ def main():
             sheet = workbook.active
 
             assignment = {"feedback": sheet['B7'].value, "max_grade": sheet['C5'].value,
-                        "actual_grade": sheet['B5'].value, "sname": sheet['B2'].value, "sid": sheet['B3'].value}
+                          "actual_grade": sheet['B5'].value, "sname": sheet['B2'].value, "sid": sheet['B3'].value}
 
             workbook.close()
+
 
 if __name__ == "__main__":
     main()
