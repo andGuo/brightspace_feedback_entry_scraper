@@ -103,7 +103,9 @@ def main():
                 search.send_keys(assignment['sid'])
                 search.send_keys(Keys.ENTER)
 
-                # TODO: Probably should throw some exception if not exactly one student results from the search 
+                # TODO: 
+                # 1. Probably should throw some exception if not exactly one student results from the search 
+                # 2. Maybe add some regex to validate the student name vs. the search result name
 
                 # Input Grade
                 grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
