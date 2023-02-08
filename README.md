@@ -13,6 +13,7 @@ Most of these can be installed with pip:
  - xlwings
  - openpyxl
  - dotenv
+ - Excel (Native Installation)
 
 ### Start-Up
 1. Make a .env file with the following variables filled in with your Brightspace login credentials:
