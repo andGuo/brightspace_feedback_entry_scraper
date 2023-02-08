@@ -22,7 +22,7 @@ browser = webdriver.Chrome(options=options)
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
-    # This needs to end with a slash
+    # This needs to end with a slash:
     PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/extensions/'
 
     # Excel Cells
@@ -50,6 +50,7 @@ def main():
     confirm_button = (
         By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
 
+    # Gets login session token and then switches to the grade input page
     browser.get(BASE_URL)
     WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
         email_field)).send_keys(config["USERNAME"])
@@ -59,18 +60,18 @@ def main():
         EC.element_to_be_clickable(login_button)).click()
     browser.get(GRADING_PAGE_URL)
 
-    # getting all files in directory
+    # Gets all files in PATH_TO_FEEDBACK_SHEETS directory
     files = []
     for (dirpath, dirnames, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
         files.extend(filenames)
 
-    # opening every .xlsx file and updating feedback
+    # Opens every .xlsx file in PATH_TO_FEEDBACK_SHEETS and inputs feedback and grade
     for f in files:
         if f.endswith('.xlsx'):
-            file_path = PATH_TO_FEEDBACK_SHEETS + f
+            file_path = PATH_TO_FEEDBACK_SHEETS + f # this should probably be sanitised ¯\_(ツ)_/¯ 
 
             try:
-                # hack to cache excel so that formulas are evaulated
+                # hack to cache temp excel so that formulas are evaulated
                 excel_app = xlwings.App(visible=False)
                 excel_book = excel_app.books.open(file_path)
                 excel_book.save()
@@ -85,17 +86,19 @@ def main():
                               "actual_grade": sheet[ACTUAL_GRADE_CELL].value, "sname": sheet[STUDENT_NAME_CELL].value, "sid": sheet[STUDENT_ID_CELL].value}
 
                 workbook.close()
-            except:
-                print(f'Invalid file_path:{file_path}')
+            except Exception as e:
+                print(f'Error on file_path:{file_path}')
+                print(e)
                 continue
 
+            # Display status
             grade_percentage = assignment['actual_grade'] / \
                 assignment['max_grade'] * 100
 
             print(f"\n{assignment['sname']} - {grade_percentage}%", end=" ")
 
             try:
-                # Search for student id
+                # Search for student id on brightspace page
                 search = WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(sid_search_bar))
                 search.send_keys(Keys.COMMAND, 'a')

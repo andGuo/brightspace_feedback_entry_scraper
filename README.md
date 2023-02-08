@@ -1,4 +1,4 @@
-# Brightspace Feedback Entry Scraper 
+# Brightspace Feedback Entry Scraper 🔍
 
 ### By: Andrew Guo
 
