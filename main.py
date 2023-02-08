@@ -13,16 +13,17 @@ from dotenv import dotenv_values
 config = dotenv_values(".env")
 
 options = webdriver.ChromeOptions()
-# options.add_argument('--headless')
+# options.add_argument('--headless') #- Headless doesn't work, perhap increasing the sleep timers would do it 
 options.add_experimental_option("detach", True)
 options.add_argument('--no-sandbox')
+options.add_argument("--start-maximized")
 browser = webdriver.Chrome(options=options)
 
 
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/test/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/fixed/'
 
     files = []
 
@@ -131,6 +132,8 @@ def main():
 
                 confirm = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                      confirm_button)).click()
+                
+                print("Done.")
             except Exception as e:
                 print(f"Failed to input feedback for student({assignment['sid']}): {assignment['sname']}")
                 print(e)
