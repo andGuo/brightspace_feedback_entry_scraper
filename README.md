@@ -4,7 +4,7 @@
 
 ## Description
 
-A selenium program to input grades and feedback.
+A selenium program to input grades and feedback. Works on MacOS with Chrome.
 
 ### Dependencies
 Most of these can be installed with pip:
@@ -20,6 +20,9 @@ Most of these can be installed with pip:
 USERNAME=""
 PASSWORD=""
 ```
-2. In main.py set the constants accordingly. Mainly PATH_TO_FEEDBACK_SHEETS and GRADING_PAGE_URL.
-
+2. In main.py set the constants accordingly.
 3. Then run main.py
+
+Note: 
+- Excel will ask for you to grant permission to access each file. This has to be manually accepted each time afaik.
+- GRADING_PAGE_URL is the one found at "Homepage"->"Progress"->"Grades"->"{Downwards_arrow_beside_assignment}"->"Enter Grades"

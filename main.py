@@ -2,7 +2,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
-from chromedriver_py import binary_path
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
 import os
@@ -13,7 +12,7 @@ from dotenv import dotenv_values
 config = dotenv_values(".env")
 
 options = webdriver.ChromeOptions()
-# options.add_argument('--headless') #- Headless doesn't work, perhap increasing the sleep timers would do it
+# options.add_argument('--headless') #- Headless doesn't work, perhaps increasing the sleep timers would do it
 options.add_experimental_option("detach", True)
 options.add_argument('--no-sandbox')
 options.add_argument("--start-maximized")
@@ -33,7 +32,7 @@ def main():
     STUDENT_NAME_CELL = 'B2'
     STUDENT_ID_CELL = 'B3'
 
-    # These will probably break and need to updated before use
+    # These will probably break and may need to be updated before use
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
