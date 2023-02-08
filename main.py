@@ -103,6 +103,8 @@ def main():
                 search.send_keys(assignment['sid'])
                 search.send_keys(Keys.ENTER)
 
+                # TODO: Probably should throw some exception if not exactly one student results from the search 
+
                 # Input Grade
                 grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     grade_input))
