@@ -4,7 +4,7 @@
 
 ## Description
 
-A selenium program to input grades and feedback. Works on MacOS with Chrome.
+A selenium python program to input grades and feedback. Works on MacOS with Chrome.
 
 ### Dependencies
 Most of these can be installed with pip:
