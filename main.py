@@ -23,7 +23,7 @@ browser = webdriver.Chrome(options=options)
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/fixed/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/extensions/' #This needs to end with a slash
 
     files = []
 
@@ -35,7 +35,7 @@ def main():
         By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
     grade_input = (
         By.XPATH, "//*[starts-with(@title,'Grade for ')]")
-    open_feedback_dialog = (By.XPATH, "//a[starts-with(@title,'Edit comments for')]")
+    open_feedback_dialog = (By.XPATH, "//a[starts-with(@title,'Edit comments for')] | //a[starts-with(@title,'Enter comments for')]")
     feedback_iframe = (By.CLASS_NAME, 'd2l-dialog-frame')
     fullscreen_button = 'return document.querySelector("#publicComments").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")'
     save_feedback_button = (
@@ -136,7 +136,8 @@ def main():
                 print("Done.")
             except Exception as e:
                 print(f"Failed to input feedback for student({assignment['sid']}): {assignment['sname']}")
-                print(e)
+                print(f"{file_path}")
+                #print(e)
                 continue
 
 
