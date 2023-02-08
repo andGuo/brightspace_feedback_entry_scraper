@@ -116,18 +116,17 @@ def main():
                 edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     open_feedback_dialog)).click()
 
+                # I think this is needed to load the dialogue's shadow DOMs so they can be queried?
                 feedback = WebDriverWait(browser, 10).until(
                     EC.frame_to_be_available_and_switch_to_it(feedback_iframe))
-
                 time.sleep(1)
+
                 fs_button = browser.execute_script(fullscreen_button)
                 fs_button.click()
-
                 feedback_text = browser.switch_to.active_element
                 feedback_text.send_keys(Keys.COMMAND, 'a')
                 feedback_text.send_keys(Keys.DELETE)
                 feedback_text.send_keys(assignment['feedback'])
-
                 fs_button.click()
 
                 save_feedback = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
