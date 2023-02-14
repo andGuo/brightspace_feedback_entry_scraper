@@ -20,9 +20,10 @@ browser = webdriver.Chrome(options=options)
 
 
 def main():
+    ##### Check/Set the constants below this line #####
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551528&ou=131240&d2l_change=0"
-    # This needs to end with a slash:
+    # The PATH needs to end with a slash
     PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/'
 
     # Excel Cells
@@ -31,6 +32,8 @@ def main():
     ACTUAL_GRADE_CELL = 'B5'
     STUDENT_NAME_CELL = 'B2'
     STUDENT_ID_CELL = 'B3'
+
+    ##### Probably won't need to mess with anything after this line #####
 
     # These will probably break one day and may need to be updated before use
     email_field = (By.ID, 'userNameInput')
