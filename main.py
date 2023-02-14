@@ -21,18 +21,18 @@ browser = webdriver.Chrome(options=options)
 
 def main():
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
-    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551527&ou=131240"
+    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551528&ou=131240&d2l_change=0"
     # This needs to end with a slash:
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/1/extensions/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/'
 
     # Excel Cells
-    FEEDBACK_CELL = 'B7'
+    FEEDBACK_CELL = 'B8'
     MAX_GRADE_CELL = 'C5'
     ACTUAL_GRADE_CELL = 'B5'
     STUDENT_NAME_CELL = 'B2'
     STUDENT_ID_CELL = 'B3'
 
-    # These will probably break and may need to be updated before use
+    # These will probably break one day and may need to be updated before use
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')

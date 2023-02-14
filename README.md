@@ -21,9 +21,9 @@ Most of these can be installed with pip:
 USERNAME=""
 PASSWORD=""
 ```
-2. In main.py set the constants accordingly.
+2. In main.py set the constants found at the top of main() accordingly.
 3. Then run main.py
 
 Note: 
-- Excel will ask for you to grant permission to access each file. This has to be manually accepted each time afaik.
+- On MacOS, Excel will ask for you to grant permission to access each file. This has to be manually accepted each time afaik.
 - GRADING_PAGE_URL is the one found at "Homepage"->"Progress"->"Grades"->"{Downwards_arrow_beside_assignment}"->"Enter Grades"
