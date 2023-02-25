@@ -31,7 +31,7 @@ def main():
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
     # Seconds to wait for the feedback input page to load
-    SLEEP_TIME = 6 # increase this value it's failing a lot while inputting grades
+    SLEEP_TIME = 3 # increase this value it's failing a lot while inputting grades
 
     # Excel Cells
     FEEDBACK_CELL = 'B8'
