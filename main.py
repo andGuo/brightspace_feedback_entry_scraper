@@ -31,7 +31,7 @@ def main():
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
     # Seconds to wait for the feedback input page to load
-    SLEEP_TIME = 5 # increase this value it's failing a lot while inputting grades
+    SLEEP_TIME = 6 # increase this value it's failing a lot while inputting grades
 
     # Excel Cells
     FEEDBACK_CELL = 'B8'
@@ -100,7 +100,7 @@ def main():
 
             # Display status
             print(
-                f"\n{assignment['sname']} - {assignment['actual_grade']}/{assignment['max_grade']}", end=" ")
+                f"\n{assignment['sname']:>18} - {assignment['actual_grade']:2d}/{assignment['max_grade']:2d}", end=" ")
 
             if str(assignment['sid']) not in sid_sname_dict:
                 print("(Failed.)")
@@ -158,7 +158,7 @@ def main():
             except Exception as e:
                 print("(Failed.)")
                 print(
-                    f"ERROR >>> Unable to input feedback for student({assignment['sid']}): {assignment['sname']}")
+                    f"ERROR >>> Unable to input feedback for student({assignment['sid']}): {sid_sname_dict[str(assignment['sid'])]}")
                 print(f"{file_path}")
                 # print(e)
                 continue
