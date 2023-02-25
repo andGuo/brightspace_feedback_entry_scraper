@@ -30,6 +30,9 @@ def main():
     # Relative path to classlist .xlsx
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
+    # Seconds to wait for the feedback input page to load
+    SLEEP_TIME = 5 # increase this value it's failing a lot while inputting grades
+
     # Excel Cells
     FEEDBACK_CELL = 'B8'
     MAX_GRADE_CELL = 'C5'
@@ -91,7 +94,7 @@ def main():
 
                 workbook.close()
             except Exception as e:
-                print(f'Error on file_path:{file_path}')
+                print(f'ERROR >>> on file_path:{file_path}')
                 print(e)
                 continue
 
@@ -102,7 +105,7 @@ def main():
             if str(assignment['sid']) not in sid_sname_dict:
                 print("(Failed.)")
                 print(
-                    f"Student - {assignment['sname']} ({assignment['sid']}) not found in classlist!")
+                    f"ERROR >>> Student - {assignment['sname']} ({assignment['sid']}) not found in classlist!")
                 print(f"{file_path}")
                 continue
 
@@ -122,7 +125,7 @@ def main():
                 search.send_keys(Keys.ENTER)
 
                 # TODO:
-                # 1. Probably should throw some exception if not exactly one student results from the search
+                # 1. Probably should raise some exception if not exactly one student results from the search
                 # 2. Maybe add some regex to validate the student name vs. the search result name
 
                 # Goto Feedback Page
@@ -130,9 +133,9 @@ def main():
                     open_feedback)).click()
 
                 # Input Grade
-                WebDriverWait(browser, 10).until(
-                    EC.invisibility_of_element_located((By.CLASS_NAME, "d2l-body-unresolved")))
-                time.sleep(2)
+                # Ideally the line below would work but the sleep time will have to do
+                # WebDriverWait(browser, 10).until( EC.invisibility_of_element_located((By.CLASS_NAME, "d2l-body-unresolved")))
+                time.sleep(SLEEP_TIME)
                 shadow_host = browser.execute_script(grade_input)
                 ac.move_to_element(shadow_host).click().perform()
                 grade = browser.switch_to.active_element
@@ -155,9 +158,9 @@ def main():
             except Exception as e:
                 print("(Failed.)")
                 print(
-                    f"Unable to input feedback for student({assignment['sid']}): {assignment['sname']}")
+                    f"ERROR >>> Unable to input feedback for student({assignment['sid']}): {assignment['sname']}")
                 print(f"{file_path}")
-                print(e)
+                # print(e)
                 continue
 
 
@@ -187,7 +190,7 @@ def get_student_names(path: str) -> Dict[int, str]:
         return classlist_dict
 
     except Exception as e:
-        print(f'Unable to parse classlist at:{path}')
+        print(f'ERROR >>> Unable to parse classlist at:{path}')
         raise Exception(e)
 
 
