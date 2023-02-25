@@ -4,6 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium import webdriver
 import os
 import time
@@ -13,10 +14,10 @@ from dotenv import dotenv_values
 config = dotenv_values(".env")
 
 options = webdriver.ChromeOptions()
-options.add_argument('--headless') #- Headless doesn't work, perhaps increasing the sleep timers would do it
+options.add_argument('--headless')
 options.add_experimental_option("detach", True)
 options.add_argument('--no-sandbox')
-options.add_argument("--start-maximized")
+options.add_argument("--window-size=1920,1080")
 browser = webdriver.Chrome(options=options)
 
 
@@ -44,15 +45,14 @@ def main():
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
-    sid_search_bar = ( #Shadow dom below
+    sid_search_bar = (  # Shadow dom below
         By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
     open_feedback = (
         By.XPATH, "//a[starts-with(@title,'Evaluate ')] | //a[starts-with(@title,'Draft saved for ')]")
-    #Shadow dom below
-    fullscreen_button = 'return document.querySelector("#d2l_1_0_435").shadowRoot.querySelector("d2l-consistent-evaluation-page").shadowRoot.querySelector("#evaluation-template > div:nth-child(3) > consistent-evaluation-right-panel").shadowRoot.querySelector("div > d2l-consistent-evaluation-right-panel-feedback").shadowRoot.querySelector("d2l-consistent-evaluation-right-panel-block > d2l-htmleditor").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")'
-    grade_input = ( 
-        By.XPATH, "//*[starts-with(@aria-label,'Overall grade out of ')]")
-    save_as_draft_button = (By.ID, 'consistent-evaluation-footer-save-draft')
+    # Shadow dom below
+    fullscreen_button = 'return document.querySelector("d2l-consistent-evaluation").shadowRoot.querySelector("d2l-consistent-evaluation-page").shadowRoot.querySelector("#evaluation-template > div:nth-child(3) > consistent-evaluation-right-panel").shadowRoot.querySelector("div > d2l-consistent-evaluation-right-panel-feedback").shadowRoot.querySelector("d2l-consistent-evaluation-right-panel-block > d2l-htmleditor").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")'
+    grade_input = 'return document.querySelector("d2l-consistent-evaluation").shadowRoot.querySelector("d2l-consistent-evaluation-page").shadowRoot.querySelector("#evaluation-template > div:nth-child(3) > consistent-evaluation-right-panel").shadowRoot.querySelector("div > d2l-consistent-evaluation-right-panel-grade-result").shadowRoot.querySelector("d2l-consistent-evaluation-right-panel-block > d2l-labs-d2l-grade-result-presentational").shadowRoot.querySelector("div.d2l-grade-result-presentational-container > d2l-grade-result-numeric-score").shadowRoot.querySelector("#grade-input")'
+    save_as_draft_button = 'return document.querySelector("d2l-consistent-evaluation").shadowRoot.querySelector("d2l-consistent-evaluation-page").shadowRoot.querySelector("#evaluation-template > div:nth-child(4) > d2l-consistent-evaluation-footer").shadowRoot.querySelector("#consistent-evaluation-footer-save-draft")'
 
     # Gets login session token
     browser.get(BASE_URL)
@@ -96,7 +96,8 @@ def main():
                 continue
 
             # Display status
-            print(f"\n{assignment['sname']} - {assignment['actual_grade']}/{assignment['max_grade']}", end=" ")
+            print(
+                f"\n{assignment['sname']} - {assignment['actual_grade']}/{assignment['max_grade']}", end=" ")
 
             if str(assignment['sid']) not in sid_sname_dict:
                 print("(Failed.)")
@@ -108,13 +109,17 @@ def main():
             try:
                 browser.get(GRADING_PAGE_URL)
                 # Search for student id on brightspace page
-                search = WebDriverWait(browser, 10).until(
+                WebDriverWait(browser, 10).until(
                     EC.element_to_be_clickable(open_feedback))
-                shadow_host = browser.find_element(sid_search_bar[0], sid_search_bar[1]).shadow_root.find_element(sid_search_bar[0], sid_search_bar[1])
-                shadow_host.send_keys(Keys.COMMAND, 'a')
-                shadow_host.send_keys(Keys.DELETE)
-                shadow_host.send_keys(sid_sname_dict[str(assignment['sid'])])
-                shadow_host.send_keys(Keys.ENTER)
+                shadow_host = browser.find_element(
+                    sid_search_bar[0], sid_search_bar[1])
+                ac = ActionChains(browser)
+                ac.move_to_element(shadow_host).click().perform()
+                search = browser.switch_to.active_element
+                search.send_keys(Keys.COMMAND, 'a')
+                search.send_keys(Keys.DELETE)
+                search.send_keys(sid_sname_dict[str(assignment['sid'])])
+                search.send_keys(Keys.ENTER)
 
                 # TODO:
                 # 1. Probably should throw some exception if not exactly one student results from the search
@@ -125,8 +130,12 @@ def main():
                     open_feedback)).click()
 
                 # Input Grade
-                grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                    grade_input))
+                WebDriverWait(browser, 10).until(
+                    EC.invisibility_of_element_located((By.CLASS_NAME, "d2l-body-unresolved")))
+                time.sleep(2)
+                shadow_host = browser.execute_script(grade_input)
+                ac.move_to_element(shadow_host).click().perform()
+                grade = browser.switch_to.active_element
                 grade.send_keys(Keys.COMMAND, 'a')
                 grade.send_keys(Keys.DELETE)
                 grade.send_keys(assignment['actual_grade'])
@@ -139,8 +148,8 @@ def main():
                 feedback_text.send_keys(assignment['feedback'])
                 fs_button.click()
 
-                save_feedback = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                    save_as_draft_button)).click()
+                save_button = browser.execute_script(save_as_draft_button)
+                ac.move_to_element(save_button).click().perform()
 
                 print("(Done.)", end=" ")
             except Exception as e:
