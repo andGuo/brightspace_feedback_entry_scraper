@@ -1,3 +1,4 @@
+from typing import Dict
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -25,6 +26,8 @@ def main():
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551528&ou=131240&d2l_change=0"
     # The PATH needs to end with a slash
     PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/'
+    # Relative path to classlist .xlsx
+    PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
     # Excel Cells
     FEEDBACK_CELL = 'B8'
@@ -34,6 +37,8 @@ def main():
     STUDENT_ID_CELL = 'B3'
 
     ##### Probably won't need to mess with anything after this line #####
+
+    sid_sname_dict = get_student_names(PATH_TO_CLASSLIST)
 
     # These will probably break one day and may need to be updated before use
     email_field = (By.ID, 'userNameInput')
@@ -71,7 +76,8 @@ def main():
     # Opens every .xlsx file in PATH_TO_FEEDBACK_SHEETS and inputs feedback and grade
     for f in files:
         if f.endswith('.xlsx'):
-            file_path = PATH_TO_FEEDBACK_SHEETS + f # this should probably be sanitised ¯\_(ツ)_/¯ 
+            # this should probably be sanitised ¯\_(ツ)_/¯
+            file_path = PATH_TO_FEEDBACK_SHEETS + f
 
             try:
                 # hack to cache temp excel so that formulas are evaulated
@@ -109,8 +115,8 @@ def main():
                 search.send_keys(assignment['sid'])
                 search.send_keys(Keys.ENTER)
 
-                # TODO: 
-                # 1. Probably should throw some exception if not exactly one student results from the search 
+                # TODO:
+                # 1. Probably should throw some exception if not exactly one student results from the search
                 # 2. Maybe add some regex to validate the student name vs. the search result name
 
                 # Input Grade
@@ -156,6 +162,36 @@ def main():
                 print(f"{file_path}")
                 # print(e)
                 continue
+
+
+def get_student_names(path: str) -> Dict[int, str]:
+    try:
+        workbook = load_workbook(
+            filename=path, data_only=True, read_only=True)
+        worksheet = workbook.active
+
+        classlist_dict = {}
+        num_rows = 0
+
+        # Count number of non-empty rows
+        for row in worksheet:
+            if not all(col.value is None for col in row):
+                num_rows += 1
+
+        # Add to dict
+        for row in range(1, num_rows + 1):
+            key = worksheet.cell(row, 1).value
+            value = worksheet.cell(row, 2).value + ' ' + \
+                worksheet.cell(row, 3).value
+            classlist_dict[key] = value
+
+        workbook.close()
+
+        return classlist_dict
+
+    except Exception as e:
+        print(f'Unable to parse classlist at:{path}')
+        raise Exception(e)
 
 
 if __name__ == "__main__":
