@@ -13,7 +13,7 @@ from dotenv import dotenv_values
 config = dotenv_values(".env")
 
 options = webdriver.ChromeOptions()
-# options.add_argument('--headless') #- Headless doesn't work, perhaps increasing the sleep timers would do it
+options.add_argument('--headless') #- Headless doesn't work, perhaps increasing the sleep timers would do it
 options.add_experimental_option("detach", True)
 options.add_argument('--no-sandbox')
 options.add_argument("--start-maximized")
@@ -23,9 +23,9 @@ browser = webdriver.Chrome(options=options)
 def main():
     ##### Check/Set the constants below this line #####
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
-    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/grades/admin/enter/grade_item_edit.d2l?objectId=551528&ou=131240&d2l_change=0"
+    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/dropbox/admin/mark/folder_submissions_users.d2l?ou=131240&db=176868"
     # The PATH needs to end with a slash
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/graded/'
     # Relative path to classlist .xlsx
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
@@ -44,21 +44,17 @@ def main():
     email_field = (By.ID, 'userNameInput')
     password_field = (By.ID, 'passwordInput')
     login_button = (By.ID, 'submitButton')
-    sid_search_bar = (
+    sid_search_bar = ( #Shadow dom below
         By.XPATH,  "//*[contains(@placeholder,'Search For…')]")
-    grade_input = (
-        By.XPATH, "//*[starts-with(@title,'Grade for ')]")
-    open_feedback_dialog = (
-        By.XPATH, "//a[starts-with(@title,'Edit comments for')] | //a[starts-with(@title,'Enter comments for')]")
-    feedback_iframe = (By.CLASS_NAME, 'd2l-dialog-frame')
-    fullscreen_button = 'return document.querySelector("#publicComments").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")'
-    save_feedback_button = (
-        By.XPATH, '//*[@id="d_content"]/div[4]/div/button[1]')
-    save_all_button = (By.ID, 'z_b')
-    confirm_button = (
-        By.XPATH, '/html/body/div[4]/div/div[1]/table/tbody/tr/td[1]/button[1]')
+    open_feedback = (
+        By.XPATH, "//a[starts-with(@title,'Evaluate ')] | //a[starts-with(@title,'Draft saved for ')]")
+    #Shadow dom below
+    fullscreen_button = 'return document.querySelector("#d2l_1_0_435").shadowRoot.querySelector("d2l-consistent-evaluation-page").shadowRoot.querySelector("#evaluation-template > div:nth-child(3) > consistent-evaluation-right-panel").shadowRoot.querySelector("div > d2l-consistent-evaluation-right-panel-feedback").shadowRoot.querySelector("d2l-consistent-evaluation-right-panel-block > d2l-htmleditor").shadowRoot.querySelector("div.d2l-htmleditor-label-flex-container > div > div.d2l-htmleditor-flex-container > div.d2l-htmleditor-toolbar-container > d2l-htmleditor-toolbar-full").shadowRoot.querySelector("div.d2l-htmleditor-toolbar-container.d2l-htmleditor-toolbar-overflowing.d2l-htmleditor-toolbar-chomping.d2l-htmleditor-toolbar-measured > div.d2l-htmleditor-toolbar-pinned-actions > d2l-htmleditor-button-toggle:nth-child(2)").shadowRoot.querySelector("button")'
+    grade_input = ( 
+        By.XPATH, "//*[starts-with(@aria-label,'Overall grade out of ')]")
+    save_as_draft_button = (By.ID, 'consistent-evaluation-footer-save-draft')
 
-    # Gets login session token and then switches to the grade input page
+    # Gets login session token
     browser.get(BASE_URL)
     WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
         email_field)).send_keys(config["USERNAME"])
@@ -66,11 +62,10 @@ def main():
         password_field)).send_keys(config["PASSWORD"])
     WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(login_button)).click()
-    browser.get(GRADING_PAGE_URL)
 
     # Gets all files in PATH_TO_FEEDBACK_SHEETS directory
     files = []
-    for (dirpath, dirnames, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
+    for (_, _, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
         files.extend(filenames)
 
     # Opens every .xlsx file in PATH_TO_FEEDBACK_SHEETS and inputs feedback and grade
@@ -101,39 +96,40 @@ def main():
                 continue
 
             # Display status
-            grade_percentage = assignment['actual_grade'] / \
-                assignment['max_grade'] * 100
+            print(f"\n{assignment['sname']} - {assignment['actual_grade']}/{assignment['max_grade']}", end=" ")
 
-            print(f"\n{assignment['sname']} - {grade_percentage}%", end=" ")
+            if str(assignment['sid']) not in sid_sname_dict:
+                print("(Failed.)")
+                print(
+                    f"Student - {assignment['sname']} ({assignment['sid']}) not found in classlist!")
+                print(f"{file_path}")
+                continue
 
             try:
+                browser.get(GRADING_PAGE_URL)
                 # Search for student id on brightspace page
                 search = WebDriverWait(browser, 10).until(
-                    EC.element_to_be_clickable(sid_search_bar))
-                search.send_keys(Keys.COMMAND, 'a')
-                search.send_keys(Keys.DELETE)
-                search.send_keys(assignment['sid'])
-                search.send_keys(Keys.ENTER)
+                    EC.element_to_be_clickable(open_feedback))
+                shadow_host = browser.find_element(sid_search_bar[0], sid_search_bar[1]).shadow_root.find_element(sid_search_bar[0], sid_search_bar[1])
+                shadow_host.send_keys(Keys.COMMAND, 'a')
+                shadow_host.send_keys(Keys.DELETE)
+                shadow_host.send_keys(sid_sname_dict[str(assignment['sid'])])
+                shadow_host.send_keys(Keys.ENTER)
 
                 # TODO:
                 # 1. Probably should throw some exception if not exactly one student results from the search
                 # 2. Maybe add some regex to validate the student name vs. the search result name
+
+                # Goto Feedback Page
+                edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
+                    open_feedback)).click()
 
                 # Input Grade
                 grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     grade_input))
                 grade.send_keys(Keys.COMMAND, 'a')
                 grade.send_keys(Keys.DELETE)
-                grade.send_keys(grade_percentage)
-
-                # Update Feedback
-                edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                    open_feedback_dialog)).click()
-
-                # I think this is needed to load the dialogue's shadow DOMs so they can be queried?
-                feedback = WebDriverWait(browser, 10).until(
-                    EC.frame_to_be_available_and_switch_to_it(feedback_iframe))
-                time.sleep(1)
+                grade.send_keys(assignment['actual_grade'])
 
                 fs_button = browser.execute_script(fullscreen_button)
                 fs_button.click()
@@ -144,15 +140,7 @@ def main():
                 fs_button.click()
 
                 save_feedback = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                    save_feedback_button)).click()
-
-                time.sleep(1)
-                # Save grade
-                save_grade = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                    save_all_button)).click()
-
-                confirm = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
-                    confirm_button)).click()
+                    save_as_draft_button)).click()
 
                 print("(Done.)", end=" ")
             except Exception as e:
@@ -160,7 +148,7 @@ def main():
                 print(
                     f"Unable to input feedback for student({assignment['sid']}): {assignment['sname']}")
                 print(f"{file_path}")
-                # print(e)
+                print(e)
                 continue
 
 
