@@ -30,7 +30,7 @@ def main():
     # Path to classlist .xlsx
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
-    MAX_TRIES = 50  # increase this value if the script is failing a lot while inputting grades
+    MAX_TRIES = 30  # increase this value if the script is failing a lot while inputting grades
 
     # Excel Cells
     FEEDBACK_CELL = 'B8'
@@ -70,6 +70,9 @@ def main():
     for (_, _, filenames) in os.walk(PATH_TO_FEEDBACK_SHEETS):
         files.extend(filenames)
 
+    num_success = 0
+    num_failed = 0
+
     # Opens every .xlsx file in PATH_TO_FEEDBACK_SHEETS and inputs feedback and grade
     for f in files:
         if f.endswith('.xlsx'):
@@ -102,6 +105,7 @@ def main():
                 f"\n{assignment['sname']:>18} - {assignment['actual_grade']:2d}/{assignment['max_grade']:2d}", end=" ")
 
             if str(assignment['sid']) not in sid_sname_dict:
+                num_failed += 1
                 print("(Failed.)")
                 print(
                     f"ERROR >>> Student - {assignment['sname']} ({assignment['sid']}) not found in classlist!")
@@ -159,6 +163,7 @@ def main():
                             save_as_draft_button)
                         ac.move_to_element(save_button).click().perform()
 
+                        num_success += 1
                         print("(Done.)", end=" ")
                         break
                     except Exception as e:
@@ -169,12 +174,15 @@ def main():
                             raise e
 
             except Exception as e:
+                num_failed += 1
                 print("(Failed.)")
                 print(
                     f"ERROR >>> Unable to input feedback for student({assignment['sid']}): {sid_sname_dict[str(assignment['sid'])]}")
                 print(f"{file_path}")
                 print(e)
                 continue
+    
+    print(f"\n\nSummary: {num_success} file(s) successfully input | {num_failed} file(s) failed")
 
 
 def get_student_names(path: str) -> Dict[int, str]:
