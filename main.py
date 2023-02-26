@@ -131,14 +131,14 @@ def main():
                 edit = WebDriverWait(browser, 10).until(EC.element_to_be_clickable(
                     open_feedback)).click()
 
-                # Input Grade
-                # Ideally the line below would work but the sleep time will have to do
-                # WebDriverWait(browser, 10).until( EC.invisibility_of_element_located((By.CLASS_NAME, "d2l-body-unresolved")))
-
                 tries = 0
 
                 while True:
                     try:
+                        # Input Grade
+                        # Ideally the line below would work but the sleep time will have to do
+                        # WebDriverWait(browser, 10).until( EC.invisibility_of_element_located((By.CLASS_NAME, "d2l-body-unresolved")))
+
                         time.sleep(2)
                         shadow_host = browser.execute_script(grade_input)
                         ac.move_to_element(shadow_host).click().perform()
@@ -163,6 +163,8 @@ def main():
                         break
                     except Exception as e:
                         tries += 1
+                        if tries % 15 == 0:
+                            browser.refresh()
                         if tries >= MAX_TRIES:
                             raise e
 
