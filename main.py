@@ -27,11 +27,10 @@ def main():
     GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/dropbox/admin/mark/folder_submissions_users.d2l?ou=131240&db=176868"
     # The PATH needs to end with a slash
     PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/graded/'
-    # Relative path to classlist .xlsx
+    # Path to classlist .xlsx
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
-    # Seconds to wait for the feedback input page to load
-    SLEEP_TIME = 3 # increase this value it's failing a lot while inputting grades
+    MAX_TRIES = 50  # increase this value if the script is failing a lot while inputting grades
 
     # Excel Cells
     FEEDBACK_CELL = 'B8'
@@ -135,32 +134,44 @@ def main():
                 # Input Grade
                 # Ideally the line below would work but the sleep time will have to do
                 # WebDriverWait(browser, 10).until( EC.invisibility_of_element_located((By.CLASS_NAME, "d2l-body-unresolved")))
-                time.sleep(SLEEP_TIME)
-                shadow_host = browser.execute_script(grade_input)
-                ac.move_to_element(shadow_host).click().perform()
-                grade = browser.switch_to.active_element
-                grade.send_keys(Keys.COMMAND, 'a')
-                grade.send_keys(Keys.DELETE)
-                grade.send_keys(assignment['actual_grade'])
 
-                fs_button = browser.execute_script(fullscreen_button)
-                fs_button.click()
-                feedback_text = browser.switch_to.active_element
-                feedback_text.send_keys(Keys.COMMAND, 'a')
-                feedback_text.send_keys(Keys.DELETE)
-                feedback_text.send_keys(assignment['feedback'])
-                fs_button.click()
+                tries = 0
 
-                save_button = browser.execute_script(save_as_draft_button)
-                ac.move_to_element(save_button).click().perform()
+                while True:
+                    try:
+                        time.sleep(2)
+                        shadow_host = browser.execute_script(grade_input)
+                        ac.move_to_element(shadow_host).click().perform()
+                        grade = browser.switch_to.active_element
+                        grade.send_keys(Keys.COMMAND, 'a')
+                        grade.send_keys(Keys.DELETE)
+                        grade.send_keys(assignment['actual_grade'])
 
-                print("(Done.)", end=" ")
+                        fs_button = browser.execute_script(fullscreen_button)
+                        ac.move_to_element(fs_button).click().perform()
+                        feedback_text = browser.switch_to.active_element
+                        feedback_text.send_keys(Keys.COMMAND, 'a')
+                        feedback_text.send_keys(Keys.DELETE)
+                        feedback_text.send_keys(assignment['feedback'])
+                        ac.move_to_element(fs_button).click().perform()
+
+                        save_button = browser.execute_script(
+                            save_as_draft_button)
+                        ac.move_to_element(save_button).click().perform()
+
+                        print("(Done.)", end=" ")
+                        break
+                    except Exception as e:
+                        tries += 1
+                        if tries >= MAX_TRIES:
+                            raise e
+
             except Exception as e:
                 print("(Failed.)")
                 print(
                     f"ERROR >>> Unable to input feedback for student({assignment['sid']}): {sid_sname_dict[str(assignment['sid'])]}")
                 print(f"{file_path}")
-                # print(e)
+                print(e)
                 continue
 
 
