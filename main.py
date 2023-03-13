@@ -24,20 +24,20 @@ browser = webdriver.Chrome(options=options)
 def main():
     ##### Check/Set the constants below this line #####
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
-    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/dropbox/admin/mark/folder_submissions_users.d2l?ou=131240&db=176868"
+    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/dropbox/admin/mark/folder_submissions_users.d2l?db=176869&ou=131240"
     # The PATH needs to end with a slash
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/2/graded/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/3/2401A-Assignment3-TA-Package/graded/'
     # Path to classlist .xlsx
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
     MAX_TRIES = 30  # increase this value if the script is failing a lot while inputting grades
 
     # Excel Cells
-    FEEDBACK_CELL = 'B8'
-    MAX_GRADE_CELL = 'C5'
-    ACTUAL_GRADE_CELL = 'B5'
-    STUDENT_NAME_CELL = 'B2'
-    STUDENT_ID_CELL = 'B3'
+    FEEDBACK_CELL = 'B9'
+    MAX_GRADE_CELL = 'C6'
+    ACTUAL_GRADE_CELL = 'B6'
+    STUDENT_NAME_CELL = 'B3'
+    STUDENT_ID_CELL = 'B4'
 
     ##### Probably won't need to mess with anything after this line #####
 
