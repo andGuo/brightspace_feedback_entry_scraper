@@ -96,7 +96,7 @@ def main():
 
                 workbook.close()
             except Exception as e:
-                print(f'ERROR >>> on file_path:{file_path}')
+                print(f'\nERROR >>> on file_path:{file_path}')
                 print(e)
                 continue
 
