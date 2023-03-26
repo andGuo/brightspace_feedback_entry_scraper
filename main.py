@@ -24,9 +24,9 @@ browser = webdriver.Chrome(options=options)
 def main():
     ##### Check/Set the constants below this line #####
     BASE_URL = "https://brightspace.carleton.ca/d2l/home"
-    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/dropbox/admin/mark/folder_submissions_users.d2l?db=176869&ou=131240"
+    GRADING_PAGE_URL = "https://brightspace.carleton.ca/d2l/lms/dropbox/admin/mark/folder_submissions_users.d2l?db=176870&ou=131240"
     # The PATH needs to end with a slash
-    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/2022-2023/Winter/2401/3/2401A-Assignment3-TA-Package/graded/'
+    PATH_TO_FEEDBACK_SHEETS = '/Users/aguo/Dev/Carleton/2022-2023/Winter/ta_2401/4/COMP2401A - A4 - TA Package/graded/'
     # Path to classlist .xlsx
     PATH_TO_CLASSLIST = "./COMP2401A Intro to Systems Programming (LEC) Winter 2023_GradesExport_2023-02-25-08-07.xlsx"
 
@@ -102,7 +102,7 @@ def main():
 
             # Display status
             print(
-                f"\n{assignment['sname']:>18} - {assignment['actual_grade']:2d}/{assignment['max_grade']:2d}", end=" ")
+                f"\n{assignment['sname']:>18} - {assignment['actual_grade']:2.2f}/{assignment['max_grade']:2.2f}", end=" ")
 
             if str(assignment['sid']) not in sid_sname_dict:
                 num_failed += 1
@@ -111,6 +111,8 @@ def main():
                     f"ERROR >>> Student - {assignment['sname']} ({assignment['sid']}) not found in classlist!")
                 print(f"{file_path}")
                 continue
+            else:
+                print(f"...name found ({sid_sname_dict[str(assignment['sid'])]})", end=" ")
 
             try:
                 browser.get(GRADING_PAGE_URL)
