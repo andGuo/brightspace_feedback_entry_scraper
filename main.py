@@ -115,6 +115,8 @@ def main():
                 print(f"...name found ({sid_sname_dict[str(assignment['sid'])]})", end=" ")
 
             try:
+                # Edge case: cannot change page when an alert is present, this happens 
+                # when there are unsaved changes on the current page
                 browser.get(GRADING_PAGE_URL)
                 # Search for student id on brightspace page
                 WebDriverWait(browser, 10).until(
